@@ -39,6 +39,8 @@ class Reservation {
 
     return results.rows.map(row => new Reservation(row));
   }
+
+  // save method for creating/updating reservation
 }
 
 
