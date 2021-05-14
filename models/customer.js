@@ -20,7 +20,7 @@ class Customer {
 
   static async all() {
     const results = await db.query(
-          `SELECT id,
+      `SELECT id,
                   first_name AS "firstName",
                   last_name  AS "lastName",
                   phone,
@@ -35,14 +35,14 @@ class Customer {
 
   static async get(id) {
     const results = await db.query(
-          `SELECT id,
+      `SELECT id,
                   first_name AS "firstName",
                   last_name  AS "lastName",
                   phone,
                   notes
            FROM customers
            WHERE id = $1`,
-        [id],
+      [id],
     );
 
     const customer = results.rows[0];
@@ -55,6 +55,49 @@ class Customer {
 
     return new Customer(customer);
   }
+
+  /* search a user, first name only returns first match,
+     full name responds more accurate  */
+  static async search(name) {
+
+    let nameObj = name.split(" ")
+    let results;
+
+    if(nameObj.length < 2){
+      results = await db.query(
+        `SELECT id,
+          first_name, 
+          last_name,
+          phone,
+          notes
+        FROM customers  
+        WHERE first_name = $1 `,
+         [nameObj[0]])
+    } else {
+
+      results = await db.query(
+      `SELECT id,
+        first_name, 
+        last_name,
+        phone,
+        notes
+      FROM customers  
+      WHERE first_name = $1 AND last_name = $2`,
+       [nameObj[0], nameObj[1]])
+    }
+
+    const customer = results.rows[0];
+    console.log("CUSTOMER QUERY RESP ===>",  customer)
+    
+    if (customer === undefined) {
+      const err = new Error(`No such customer: ${name}`);
+      err.status = 404;
+      throw err;
+    }
+
+    return new Customer(customer);
+  }
+
 
   /** Gets a customers full name */
   fullName() {
@@ -72,26 +115,26 @@ class Customer {
   async save() {
     if (this.id === undefined) {
       const result = await db.query(
-            `INSERT INTO customers (first_name, last_name, phone, notes)
+        `INSERT INTO customers (first_name, last_name, phone, notes)
              VALUES ($1, $2, $3, $4)
              RETURNING id`,
-          [this.firstName, this.lastName, this.phone, this.notes],
+        [this.firstName, this.lastName, this.phone, this.notes],
       );
       this.id = result.rows[0].id;
     } else {
       await db.query(
-            `UPDATE customers
+        `UPDATE customers
              SET first_name=$1,
                  last_name=$2,
                  phone=$3,
                  notes=$4
              WHERE id = $5`, [
-            this.firstName,
-            this.lastName,
-            this.phone,
-            this.notes,
-            this.id,
-          ],
+        this.firstName,
+        this.lastName,
+        this.phone,
+        this.notes,
+        this.id,
+      ],
       );
     }
   }

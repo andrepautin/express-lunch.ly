@@ -19,5 +19,13 @@
     "jest": "^26.2.2",
     "supertest": "^4.0.2"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrepautin/express-lunch.ly.git"
+  },
+  "bugs": {
+    "url": "https://github.com/andrepautin/express-lunch.ly/issues"
+  },
+  "homepage": "https://github.com/andrepautin/express-lunch.ly#readme",
   "description": ""
 }

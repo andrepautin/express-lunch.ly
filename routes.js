@@ -42,6 +42,20 @@ router.get("/:id/", async function (req, res, next) {
   return res.render("customer_detail.html", { customer, reservations });
 });
 
+
+/** Show a customer, given their first name  */
+router.post("/search/", async function (req, res, next){
+  
+  console.log("form is sending this off ===>", req.body.nameSearch)
+  
+  const  customer  = await Customer.search(req.body.nameSearch)
+
+  console.log("customer var before redirect ====>", customer)
+
+  return res.redirect(`/${customer.id}/`);
+})
+
+
 /** Show form to edit a customer. */
 
 router.get("/:id/edit/", async function (req, res, next) {
