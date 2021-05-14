@@ -12,6 +12,7 @@ const router = new express.Router();
 /** Homepage: show list of customers. */
 
 router.get("/", async function (req, res, next) {
+
   const customers = await Customer.all();
   return res.render("customer_list.html", { customers });
 });
@@ -32,15 +33,6 @@ router.post("/add/", async function (req, res, next) {
   return res.redirect(`/${customer.id}/`);
 });
 
-/** Show a customer, given their ID. */
-
-router.get("/:id/", async function (req, res, next) {
-  const customer = await Customer.get(req.params.id);
-
-  const reservations = await customer.getReservations();
-
-  return res.render("customer_detail.html", { customer, reservations });
-});
 
 
 /** Show a customer, given their first name  */
@@ -49,20 +41,38 @@ router.post("/search/", async function (req, res, next){
   console.log("form is sending this off ===>", req.body.nameSearch)
   
   const  customer  = await Customer.search(req.body.nameSearch)
-
+  
   console.log("customer var before redirect ====>", customer)
-
+  
   return res.redirect(`/${customer.id}/`);
 })
 
+/** Shows list of top customers with most reservations */
+router.get("/top-customers/", async function(req, res, next) {
+  console.log("IN THE TOP CUSTOMER ROUTE");
+  const customers = await Customer.getTopCustomers();
+  console.log("Customers ---> ", {customers});
+  return res.render("customer_top_list.html", {customers});
+})
+
+router.get("/:id/", async function (req, res, next) {
+  console.log("HITTING GET CUSTOMER BY ID ROUTE");
+  const customer = await Customer.get(req.params.id);
+
+  const reservations = await customer.getReservations();
+
+  return res.render("customer_detail.html", { customer, reservations });
+});
 
 /** Show form to edit a customer. */
 
 router.get("/:id/edit/", async function (req, res, next) {
   const customer = await Customer.get(req.params.id);
-
+  
   res.render("customer_edit_form.html", { customer });
 });
+
+/** Show a customer, given their ID. */
 
 /** Handle editing a customer. */
 
@@ -73,7 +83,7 @@ router.post("/:id/edit/", async function (req, res, next) {
   customer.phone = req.body.phone;
   customer.notes = req.body.notes;
   await customer.save();
-
+  
   return res.redirect(`/${customer.id}/`);
 });
 

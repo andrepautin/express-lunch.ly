@@ -98,6 +98,21 @@ class Customer {
     return new Customer(customer);
   }
 
+  /** search DB for top 10 customers with most reservations */
+  static async getTopCustomers() {
+    console.log("IN THE TOP CUSTOMER FUNCTION");
+    const results = await db.query(
+      `SELECT customers.id, customers.first_name, customers.last_name, count(reservations.customer_id) as COUNT 
+      FROM customers 
+      JOIN reservations ON customers.id=reservations.customer_id 
+      GROUP BY (customers.id, customers.first_name, customers.last_name) 
+      ORDER BY COUNT DESC
+      LIMIT 10;
+      `);
+    console.log("results method are ---->", results);
+    const customers = await Promise.all(results.rows.map(c => Customer.get(c.id)));
+    return await customers;
+  }
 
   /** Gets a customers full name */
   fullName() {
